@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Adey World — App Prototype</title>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+  html,body{margin:0;height:100%;background:#1a0f28;font-family:'Nunito',sans-serif;overflow:hidden}
+  #stage{position:fixed;inset:0;display:grid;place-items:center}
+  /* landscape phone bezel */
+  .device{position:relative;border-radius:46px;background:#120a1d;padding:16px;
+    box-shadow:0 40px 90px rgba(0,0,0,.55),inset 0 0 0 3px rgba(255,255,255,.07)}
+  .device .notch{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:10px;height:120px;
+    background:rgba(255,255,255,.07);border-radius:6px;z-index:5;pointer-events:none}
+  .device-inner{position:relative;width:932px;height:430px;border-radius:32px;overflow:hidden;background:#000}
+  /* route transition */
+  .route-enter{animation:routeIn .32s cubic-bezier(.2,.7,.3,1)}
+  @keyframes routeIn{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:none}}
+  /* restart pill */
+  .restart{position:fixed;top:14px;right:16px;z-index:200;display:flex;align-items:center;gap:7px;
+    background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:8px 15px;font-family:'Grandstander',sans-serif;
+    font-weight:800;font-size:13px;backdrop-filter:blur(8px)}
+  .restart:hover{background:rgba(255,255,255,.18)}
+  .toast{position:absolute}
+</style>
+</head>
+<body>
+<div id="stage"><div id="root"></div></div>
+<button class="restart" onclick="localStorage.removeItem('aw_route');location.reload()" title="Restart flow">↺ Restart</button>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script src="audio.js"></script>
+<script src="content.js"></script>
+<script src="progress.js"></script>
+<script type="text/babel" src="shared.jsx"></script>
+<script type="text/babel" src="catalog.jsx"></script>
+<script type="text/babel" src="progress-ui.jsx"></script>
+<script type="text/babel" src="screensA.jsx"></script>
+<script type="text/babel" src="flow-onboarding.jsx"></script>
+<script type="text/babel" src="flow-play.jsx"></script>
+<script type="text/babel" src="flow-screens2.jsx"></script>
+<script type="text/babel" src="flow-engines.jsx"></script>
+<script type="text/babel" src="flow-extra.jsx"></script>
+<script type="text/babel" src="flow-more.jsx"></script>
+<script type="text/babel" src="flow-unlock.jsx"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+const ROUTES = {
+  splash:     Splash,
+  onboard:    Onboarding,
+  profiles:   ProfileSelect,
+  parentgate: ParentGate,
+  home:       HomeRoute,
+  category:   CategoryScreen,
+  video:      VideoPlayer,
+  topic:      TopicScreen,
+  createdetail: CreateDetail,
+  game:       TracingGame,
+  match:      MatchingGame,
+  quiz:       QuizGame,
+  dragdrop:   DragDropGame,
+  story:      StoryGame,
+  coloring:   ColoringGame,
+  paywall:    Paywall,
+  grownup:    GrownupGate,
+  adunlock:   AdUnlock,
+  parent:     ParentArea,
+  settings:   Settings,
+  search:     SearchScreen,
+  intro:      ActivityIntro,
+  launch:     GameLauncher,
+  surprise:   SurpriseBox,
+  stickers:   StickerBook,
+  timesup:    TimesUp,
+  trophies:   Trophies,
+  seeall:     SeeAll,
+  profileedit: ProfileEdit,
+  reward:     Reward,
+};
+
+/* per-screen narration lines (spoken on entry) */
+const NARRATION = {
+  splash:'Welcome to Adey World!',
+  onboard:'Selam! Let us set up your adventure.',
+  profiles:'Who is playing today?',
+  home:'Welcome back! What shall we play?',
+  category:'Pick a game, a video, or something to make!',
+  topic:'Here is everything about this topic.',
+  paywall:'Unlock all of Adey World!',
+  parent:'Welcome to the parents area.',
+  trophies:'Look at all your trophies!',
+  reward:'Hooray! You did it!',
+  surprise:'Tap to open your surprise!',
+  intro:'Let us play!',
+};
+
+function fitScale(){
+  const m=40; // margin around device
+  const dw=932+32, dh=430+32; // inner + padding
+  return Math.min((window.innerWidth-m)/dw, (window.innerHeight-m)/dh, 1.35);
+}
+
+function App(){
+  const [route,setRoute]=useState(()=>localStorage.getItem('aw_route')||'splash');
+  const [params,setParams]=useState({});
+  const [scale,setScale]=useState(fitScale());
+  const [toast,setToast]=useState(null);
+  const tref=useRef();
+
+  const onToast=useCallback((m)=>{ setToast(m); clearTimeout(tref.current); tref.current=setTimeout(()=>setToast(null),1700); },[]);
+  const nav={ go:(r,p={})=>{ if(window.AW){AW.play('swoosh'); AW.stopSpeak();} setParams(p); setRoute(r); localStorage.setItem('aw_route',r); window.scrollTo&&window.scrollTo(0,0); if(p&&p.toast) onToast(p.toast); } };
+
+  // ── daily play-limit ticker — counts time spent in games; gentle stop when reached ──
+  const GAME_ROUTES={game:1,match:1,quiz:1,dragdrop:1,story:1,coloring:1,video:1,launch:1};
+  useEffect(()=>{
+    if(!window.AWP) return;
+    const iv=setInterval(()=>{
+      if(!GAME_ROUTES[route]) return;
+      const st=AWP.tick(1);
+      if(st.reached){ if(window.AW){AW.play('swoosh'); AW.stopSpeak();} setRoute('timesup'); localStorage.setItem('aw_route','timesup'); }
+    },1000);
+    return ()=>clearInterval(iv);
+  },[route]);
+
+  // speak the screen's narration shortly after it mounts
+  useEffect(()=>{ const line=NARRATION[route]; if(line&&window.AW){ const t=setTimeout(()=>AW.speak(line),360); return ()=>clearTimeout(t);} },[route]);
+  // start ambient music after first interaction
+  useEffect(()=>{ const k=()=>{ if(window.AW){AW.unlock();AW.startMusic();} window.removeEventListener('pointerdown',k); }; window.addEventListener('pointerdown',k); return ()=>window.removeEventListener('pointerdown',k); },[]);
+
+  useEffect(()=>{ const onR=()=>setScale(fitScale()); window.addEventListener('resize',onR); return ()=>window.removeEventListener('resize',onR); },[]);
+
+  const Active = ROUTES[route] || Splash;
+
+  // global tap SFX on any button press
+  useEffect(()=>{
+    const h=(e)=>{ if(e.target.closest('button,[role=button],a')) { if(window.AW) AW.play('tap'); } };
+    document.addEventListener('pointerdown',h,true);
+    return ()=>document.removeEventListener('pointerdown',h,true);
+  },[]);
+
+  return (
+    <div className="device" style={{transform:`scale(${scale})`}}>
+      <div className="device-inner">
+        <div key={route} className="route-enter" style={{position:'absolute',inset:0}}>
+          <Active nav={nav} params={params} onToast={onToast}/>
+        </div>
+        <div className={'toast'+(toast?' show':'')}>{toast}</div>
+      </div>
+      <div className="notch"></div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

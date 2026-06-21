@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Adey World — Developer Handoff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Grandstander:wght@600;700;800;900&family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --brand:#9B1FC9;--brand-deep:#6A1191;--brand-bright:#B934E6;--ink:#3A1B47;--cream:#FFF6E9;
+  --play:#34B764;--play-d:#1E8F49;--learn:#2C8BE0;--learn-d:#1668B8;--watch:#FF8A3D;--watch-d:#E06A18;--create:#FF5CA8;--create-d:#D43483;
+  --sun:#FFC835;--sun-d:#E6A50E;--coral:#FF6B5C;
+  --paper:#fff;--bg:#F4EFFa;--line:#E7DDF2;--muted:#7B6A88;--ok:#1E8F49;--todo:#D43483;--part:#E06A18;
+  --fd:'Grandstander',system-ui,sans-serif;--fb:'Nunito',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);color:var(--ink);background:var(--bg);line-height:1.55}
+a{color:var(--brand);text-decoration:none}
+code{font-family:var(--mono);font-size:.86em;background:#fff;border:1px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--brand-deep)}
+.layout{display:grid;grid-template-columns:248px 1fr;max-width:1280px;margin:0 auto;min-height:100vh}
+
+/* sidebar */
+.side{position:sticky;top:0;height:100vh;overflow-y:auto;background:#fff;border-right:1px solid var(--line);padding:22px 16px}
+.brandrow{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.brandrow .logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--sun),var(--watch));display:grid;place-items:center;box-shadow:0 3px 0 var(--watch-d);transform:rotate(-5deg)}
+.brandrow .logo svg{width:22px;height:22px;color:#fff}
+.brandrow b{font-family:var(--fd);font-weight:900;font-size:18px;line-height:1}
+.brandrow span{display:block;font-size:11px;color:var(--muted);font-weight:700}
+.side nav{margin-top:18px;display:flex;flex-direction:column;gap:2px}
+.side nav a{font-family:var(--fd);font-weight:800;font-size:13.5px;color:var(--ink);padding:9px 12px;border-radius:10px;display:flex;align-items:center;gap:9px}
+.side nav a:hover{background:var(--bg)}
+.side nav a .n{width:20px;height:20px;border-radius:6px;background:var(--bg);color:var(--brand);display:grid;place-items:center;font-size:11px;font-weight:900}
+.side nav .grouplbl{font-size:10.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:14px 12px 4px}
+
+/* main */
+main{padding:46px 54px 120px;max-width:920px}
+section{margin-bottom:54px;scroll-margin-top:24px}
+h1{font-family:var(--fd);font-weight:900;font-size:40px;line-height:1.05;letter-spacing:-.5px}
+h2{font-family:var(--fd);font-weight:900;font-size:27px;margin-bottom:4px;letter-spacing:-.3px;display:flex;align-items:center;gap:11px}
+h2 .hn{width:30px;height:30px;border-radius:9px;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:15px;flex:0 0 auto}
+h3{font-family:var(--fd);font-weight:800;font-size:17px;margin:22px 0 10px}
+p{margin:8px 0;color:#4a3a57}
+.lede{font-size:18px;color:var(--muted);font-weight:600;margin-top:10px}
+.hr{height:1px;background:var(--line);margin:14px 0 0}
+ul{margin:8px 0 8px 4px;list-style:none}
+ul li{padding:4px 0 4px 22px;position:relative}
+ul li::before{content:'';position:absolute;left:4px;top:13px;width:7px;height:7px;border-radius:2px;background:var(--brand)}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:14px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* status pills */
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--fd);font-weight:800;font-size:11.5px;padding:3px 11px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:#E4F5EC;color:var(--ok)}
+.pill.part{background:#FDEEE0;color:var(--part)}
+.pill.todo{background:#FCE6F1;color:var(--todo)}
+.pill.dev{background:#E7F0FF;color:var(--learn-d)}
+.pill.you{background:#F0E7FA;color:var(--brand)}
+
+/* swatches */
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.sw{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.sw .chip{height:60px}
+.sw .meta{padding:8px 10px}
+.sw .meta b{font-family:var(--fd);font-size:13px}
+.sw .meta code{font-size:11px;background:none;border:none;padding:0;color:var(--muted)}
+
+/* table */
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th{background:#FBF8FE;text-align:left;font-family:var(--fd);font-weight:800;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;padding:10px 14px;border-bottom:1px solid var(--line)}
+td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{font-family:var(--fd)}
+
+/* code block */
+pre{background:#2A1635;color:#EADCF5;border-radius:14px;padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;margin:12px 0}
+pre .k{color:#FF9BD0}.pre .s{color:#9BE7B4}
+pre .c{color:#9B83B0;font-style:italic}
+
+.callout{border-left:4px solid var(--sun);background:#FFF9E8;border-radius:0 12px 12px 0;padding:14px 18px;margin:14px 0}
+.callout b{font-family:var(--fd)}
+.tokenrow{display:flex;align-items:center;gap:10px;font-size:13px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.tokenrow:last-child{border:none}
+.tokenrow code{flex:0 0 auto}
+.tokenrow .arrow{color:var(--muted)}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.hero-banner{background:linear-gradient(120deg,var(--brand),var(--brand-bright));color:#fff;border-radius:22px;padding:30px 34px;margin-bottom:30px}
+.hero-banner h1{color:#fff}
+.hero-banner .lede{color:rgba(255,255,255,.9)}
+.statline{display:flex;gap:26px;flex-wrap:wrap;margin-top:18px}
+.statline .s b{font-family:var(--fd);font-weight:900;font-size:26px;display:block;line-height:1}
+.statline .s span{font-size:12px;opacity:.85;font-weight:700}
+@media(max-width:880px){.layout{grid-template-columns:1fr}.side{display:none}main{padding:28px 22px 80px}.grid2,.grid3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="side">
+    <div class="brandrow">
+      <span class="logo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.45L12 17.9l-5.8 3.05 1.1-6.45-4.7-4.6 6.5-.95z"/></svg></span>
+      <div><b>Adey World</b><span>Developer Handoff v1.0</span></div>
+    </div>
+    <nav>
+      <span class="grouplbl">Start here</span>
+      <a href="#overview"><span class="n">0</span> Overview &amp; status</a>
+      <a href="#stack"><span class="n">1</span> Tech stack &amp; mapping</a>
+      <span class="grouplbl">Design system</span>
+      <a href="#color"><span class="n">2</span> Color tokens</a>
+      <a href="#type"><span class="n">3</span> Type &amp; shape</a>
+      <a href="#motion"><span class="n">4</span> Motion</a>
+      <a href="#components"><span class="n">5</span> Components</a>
+      <span class="grouplbl">Build</span>
+      <a href="#screens"><span class="n">6</span> Screen → widget map</a>
+      <a href="#engines"><span class="n">7</span> Engines &amp; JSON schema</a>
+      <a href="#assets"><span class="n">8</span> Asset manifest</a>
+      <a href="#rules"><span class="n">9</span> Functional rules</a>
+      <span class="grouplbl">Plan</span>
+      <a href="#ownership"><span class="n">↳</span> Ownership &amp; gaps</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+    <div class="hero-banner">
+      <h1>Adey World — Developer Handoff</h1>
+      <p class="lede">Everything needed to rebuild the prototype as a production Flutter + Supabase app. Design tokens, components, screen map, content schema, and rules — pulled from the working prototype.</p>
+      <div class="statline">
+        <div class="s"><b>18</b><span>SCREENS</span></div>
+        <div class="s"><b>6</b><span>GAME ENGINES</span></div>
+        <div class="s"><b>4</b><span>WORLDS</span></div>
+        <div class="s"><b>4</b><span>CHARACTERS</span></div>
+        <div class="s"><b>28</b><span>LAUNCH ACTIVITIES</span></div>
+      </div>
+    </div>
+
+    <!-- 0 OVERVIEW -->
+    <section id="overview">
+      <h2><span class="hn">0</span> Overview &amp; status</h2>
+      <p>The HTML prototype is the <b>visual + behavioral spec</b>. It is pixel-faithful and interactive, but is a front-end mock: data is sample content, audio is silent, and there is no backend. This doc maps every piece to the production build.</p>
+      <div class="legend">
+        <span class="pill ok">✓ Prototype done</span>
+        <span class="pill part">◐ Partial</span>
+        <span class="pill todo">○ Not built</span>
+        <span class="pill dev">DEV owns</span>
+        <span class="pill you">CONTENT/you owns</span>
+      </div>
+      <table>
+        <thead><tr><th>Area</th><th>Prototype</th><th>For production</th><th>Owner</th></tr></thead>
+        <tbody>
+          <tr><td><b>All 18 screens &amp; flows</b></td><td><span class="pill ok">✓ done</span></td><td>Rebuild as Flutter widgets</td><td><span class="pill dev">DEV</span></td></tr>
+          <tr><td><b>6 game engines</b></td><td><span class="pill ok">✓ done</span></td><td>Native widgets reading JSON</td><td><span class="pill dev">DEV</span></td></tr>
+          <tr><td><b>Design tokens &amp; components</b></td><td><span class="pill ok">✓ done</span></td><td>Port to <code>theme.dart</code> (§2–5)</td><td><span class="pill dev">DEV</span></td></tr>
+          <tr><td><b>Character + scene art</b></td><td><span class="pill ok">✓ done</span></td><td>Export @1×/2×/3× (§8)</td><td><span class="pill you">CONTENT</span></td></tr>
+          <tr><td><b>Audio (narration + SFX)</b></td><td><span class="pill todo">○ silent</span></td><td>Record &amp; wire per screen</td><td><span class="pill you">CONTENT</span></td></tr>
+          <tr><td><b>Final activity content</b></td><td><span class="pill part">◐ samples</span></td><td>28 activities as JSON (§7)</td><td><span class="pill you">CONTENT</span></td></tr>
+          <tr><td><b>Auth · Paywall · Progress</b></td><td><span class="pill part">◐ mocked</span></td><td>Supabase + store wiring (§9)</td><td><span class="pill dev">DEV</span></td></tr>
+          <tr><td><b>Translation (EN ↔ አማርኛ)</b></td><td><span class="pill part">◐ EN only</span></td><td><b>Deferred</b> — string-keyed for later</td><td><span class="pill you">CONTENT</span></td></tr>
+        </tbody>
+      </table>
+      <div class="callout"><b>Translation deferred (per current scope):</b> build UI with a string-table abstraction (e.g. <code>intl</code> / <code>.arb</code> files) and keys from day one, English values only. Amharic values drop in later with zero refactor. Don't hard-code visible strings.</div>
+    </section>
+
+    <!-- 1 STACK -->
+    <section id="stack">
+      <h2><span class="hn">1</span> Tech stack &amp; HTML→Flutter mapping</h2>
+      <p>Target per PRD: <b>Flutter</b> (iOS + Android), <b>Supabase</b> (auth, DB, storage). The prototype concepts map cleanly:</p>
+      <table>
+        <thead><tr><th>Prototype (HTML/React)</th><th>Flutter equivalent</th><th>Package</th></tr></thead>
+        <tbody>
+          <tr><td>Route switch + <code>localStorage</code></td><td>Router + persisted state</td><td><code>go_router</code>, <code>shared_preferences</code></td></tr>
+          <tr><td>CSS <code>:root</code> tokens</td><td><code>ThemeData</code> + <code>app_colors.dart</code></td><td>built-in</td></tr>
+          <tr><td>Grandstander / Nunito <code>@import</code></td><td>Bundled font families</td><td><code>google_fonts</code></td></tr>
+          <tr><td>Character / scene PNGs</td><td>Asset images @1/2/3×</td><td><code>Image.asset</code></td></tr>
+          <tr><td>Topic icons (inline SVG)</td><td>SVG assets</td><td><code>flutter_svg</code></td></tr>
+          <tr><td>Engine reads activity object</td><td>Widget reads model from JSON</td><td><code>json_serializable</code></td></tr>
+          <tr><td>Candy press / bounce CSS</td><td>Scale/offset on tap</td><td><code>AnimatedScale</code>, <code>GestureDetector</code></td></tr>
+          <tr><td>Confetti / celebration</td><td>Particle / Lottie</td><td><code>confetti</code> or <code>lottie</code></td></tr>
+          <tr><td>Tracing <code>&lt;canvas&gt;</code></td><td>Gesture + <code>CustomPainter</code></td><td>built-in</td></tr>
+          <tr><td>Silent sound buttons</td><td>Narration + SFX players</td><td><code>just_audio</code>, <code>audioplayers</code></td></tr>
+          <tr><td>Adey Studio (web CMS)</td><td>Stays web — Next.js + Supabase</td><td>separate repo</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 2 COLOR -->
+    <section id="color">
+      <h2><span class="hn">2</span> Color tokens</h2>
+      <p>Exact values from <code>styles.css :root</code>. Each maps 1:1 to a Dart constant. <b>Category colors drive everything</b> — every activity, badge, and world is themed by its category's <code>base</code> + <code>dark</code> (the <code>-d</code> shade is the candy-button bottom edge).</p>
+      <h3>Brand &amp; shell</h3>
+      <div class="swatches" id="sw-brand"></div>
+      <h3>Category palette (each = base + dark edge)</h3>
+      <div class="swatches" id="sw-cat"></div>
+      <h3>Accents &amp; ink</h3>
+      <div class="swatches" id="sw-acc"></div>
+      <pre><span class="c">// app_colors.dart</span>
+class AppColors {
+  static const brand       = Color(0xFF9B1FC9);
+  static const brandDeep   = Color(0xFF6A1191);
+  static const brandBright = Color(0xFFB934E6);
+  static const ink         = Color(0xFF3A1B47);
+  static const cream       = Color(0xFFFFF6E9);
+  <span class="c">// categories: base + dark (candy edge)</span>
+  static const play   = Color(0xFF34B764);  static const playD   = Color(0xFF1E8F49);
+  static const learn  = Color(0xFF2C8BE0);  static const learnD  = Color(0xFF1668B8);
+  static const watch  = Color(0xFFFF8A3D);  static const watchD  = Color(0xFFE06A18);
+  static const create = Color(0xFFFF5CA8);  static const createD = Color(0xFFD43483);
+  static const sun    = Color(0xFFFFC835);  static const sunD    = Color(0xFFE6A50E);
+  static const coral  = Color(0xFFFF6B5C);
+}</pre>
+    </section>
+
+    <!-- 3 TYPE -->
+    <section id="type">
+      <h2><span class="hn">3</span> Typography &amp; shape</h2>
+      <div class="grid2">
+        <div class="card">
+          <h3 style="margin-top:0">Families</h3>
+          <p style="font-family:var(--fd);font-weight:900;font-size:30px;color:var(--brand);margin:0">Grandstander</p>
+          <p style="margin-top:2px"><code>--fdisp</code> · display / all headings, buttons, labels · weights 600–900</p>
+          <p style="font-family:var(--fb);font-weight:700;font-size:22px;margin:14px 0 0">Nunito</p>
+          <p style="margin-top:2px"><code>--fbody</code> · body copy, descriptions · weights 400–900</p>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0">Shape tokens</h3>
+          <div class="tokenrow"><code>--r-card</code><span class="arrow">→</span> 30px · big cards, sheets</div>
+          <div class="tokenrow"><code>--r-tile</code><span class="arrow">→</span> 26px · activity tiles</div>
+          <div class="tokenrow"><code>--r-pill</code><span class="arrow">→</span> 999px · buttons, chips, badges</div>
+          <div class="tokenrow"><code>--depth</code><span class="arrow">→</span> 6px · candy-button bottom edge</div>
+        </div>
+      </div>
+      <h3>Type scale (in-app, 932×430 landscape frame)</h3>
+      <table>
+        <thead><tr><th>Use</th><th>Family / weight</th><th>Size</th></tr></thead>
+        <tbody>
+          <tr><td>Screen title (H1)</td><td>Grandstander 900</td><td>24–34px</td></tr>
+          <tr><td>Section header</td><td>Grandstander 900</td><td>19–24px</td></tr>
+          <tr><td>Card / tile title</td><td>Grandstander 800</td><td>16–18px</td></tr>
+          <tr><td>Button label</td><td>Grandstander 800</td><td>14–20px</td></tr>
+          <tr><td>Body / description</td><td>Nunito 700</td><td>13–16px</td></tr>
+          <tr><td>Caption / sub</td><td>Nunito 700</td><td>12–13px</td></tr>
+        </tbody>
+      </table>
+      <div class="callout"><b>Accessibility:</b> all touch targets ≥ 44×44pt (PRD). Min in-app text 13px at this frame; scale with device. Headings use <code>.title-shadow</code> = <code>text-shadow:0 3px 0 rgba(0,0,0,.18)</code> on colored shells.</div>
+    </section>
+
+    <!-- 4 MOTION -->
+    <section id="motion">
+      <h2><span class="hn">4</span> Motion</h2>
+      <table>
+        <thead><tr><th>Interaction</th><th>Transform</th><th>Timing</th></tr></thead>
+        <tbody>
+          <tr><td><b>Candy button press</b></td><td>translateY(+6px), shadow collapses</td><td>80ms</td></tr>
+          <tr><td><b>Card / tile tap</b></td><td>scale(0.95)</td><td>120ms · <code>cubic-bezier(.34,1.56,.64,1)</code></td></tr>
+          <tr><td><b>Portal / world hover-lift</b></td><td>translateY(−4 to −8px) scale(1.01)</td><td>140–160ms · bouncy</td></tr>
+          <tr><td><b>Reward star pop</b></td><td>scale 0 → 1.15 → 1, staggered</td><td>500ms, 150ms stagger</td></tr>
+          <tr><td><b>Confetti fall</b></td><td>translateY(460px) rotate(380°)</td><td>1.8–3s loop</td></tr>
+          <tr><td><b>Character idle float</b></td><td>translateY ±8px</td><td>3–7s ease-in-out loop</td></tr>
+          <tr><td><b>Screen enter</b></td><td>opacity + translateY(10px)→0</td><td>400ms ease</td></tr>
+        </tbody>
+      </table>
+      <p>The signature feel is the <b>"candy" depth</b>: every primary button and card has a solid colored bottom shadow (the <code>-d</code> shade) that collapses on press — implement as a bottom <code>BoxShadow</code> with 0 blur + an <code>AnimatedSlide</code>/scale on tap.</p>
+    </section>
+
+    <!-- 5 COMPONENTS -->
+    <section id="components">
+      <h2><span class="hn">5</span> Component inventory</h2>
+      <p>Reusable widgets to build first. Each lists its variants/states.</p>
+      <table>
+        <thead><tr><th>Component</th><th>Spec</th><th>States / variants</th></tr></thead>
+        <tbody>
+          <tr><td><b>CandyButton</b></td><td>Pill, Grandstander 800, color <code>--c</code> + bottom edge <code>--cd</code> (depth 6px) + soft drop shadow</td><td>default · pressed · per-category color · light (white)</td></tr>
+          <tr><td><b>IconButton (round)</b></td><td>60px circle, white bg, 4px colored ring, brand glyph</td><td>back · sound · parent · ring color varies</td></tr>
+          <tr><td><b>ActivityTile</b></td><td>White card, scene image (4:3), category badge, optional lock + progress bar, title + sub</td><td>free · locked (sun lock) · in-progress (sun bar)</td></tr>
+          <tr><td><b>WorldCard / Portal</b></td><td>Scene image + category gradient tint, white icon chip, count badge, candy bottom shadow</td><td>4 categories · hover-lift</td></tr>
+          <tr><td><b>Rail</b></td><td>Horizontal scroll-snap row of tiles, section header (icon + label + Amharic + "See all")</td><td>per category</td></tr>
+          <tr><td><b>Nav (bottom pill / left rail)</b></td><td>White rounded bar, 5 items, active = filled category color</td><td>Home·Play·Learn·Watch·Create</td></tr>
+          <tr><td><b>Header / TopStrip</b></td><td>Logo pill (left), streak + stars chips, sound + parent icon buttons, profile avatar</td><td>—</td></tr>
+          <tr><td><b>Chip / StatChip</b></td><td>White pill, Grandstander 800, icon + value, 3px bottom shadow</td><td>streak · stars · premium</td></tr>
+          <tr><td><b>Toast</b></td><td>Ink pill, bottom-center, fade+slide, auto-dismiss 1.8s</td><td>—</td></tr>
+          <tr><td><b>RewardSheet</b></td><td>White rounded card, 3 stars (mid larger), title, +stars badge, replay/continue</td><td>1–3 stars</td></tr>
+        </tbody>
+      </table>
+      <p>Brand: app logo is <code>assets/adeyworld-logo.png</code> on a white pill (dark letters need light backing). Splash uses <code>assets/hero-kids.png</code>.</p>
+    </section>
+
+    <!-- 6 SCREENS -->
+    <section id="screens">
+      <h2><span class="hn">6</span> Screen → widget map</h2>
+      <p>Every route in the prototype (<code>nav.go('route')</code>) → its Flutter screen. Source files in parentheses.</p>
+      <table>
+        <thead><tr><th>Route</th><th>Screen</th><th>Notes for build</th></tr></thead>
+        <tbody>
+          <tr><td><code>splash</code></td><td><b>Splash</b></td><td>Logo + hero-kids art + loading; auto-advance. (Native launch screen separate.)</td></tr>
+          <tr><td><code>onboard</code></td><td><b>Onboarding</b> (3 steps)</td><td>Welcome → parent sign-up (email/Google) → child profile (name/age/avatar)</td></tr>
+          <tr><td><code>profiles</code></td><td><b>Profile select</b></td><td>Up to 3 kids + add; "Parents' area" entry</td></tr>
+          <tr><td><code>parentgate</code></td><td><b>Parent gate</b></td><td>Math challenge before parent/purchase areas</td></tr>
+          <tr><td><code>home</code></td><td><b>Home</b> (tabbed)</td><td>Play / Theater / Lessons / Create tabs + header + nav</td></tr>
+          <tr><td><code>category</code></td><td><b>World</b> (sectioned)</td><td>Games · Videos · Create rails for one world</td></tr>
+          <tr><td><code>topic</code></td><td><b>Topic</b></td><td>Content filtered across categories (chips)</td></tr>
+          <tr><td><code>video</code></td><td><b>Video player</b></td><td>Reusable Theater view: scrubber, play/pause, Up-next</td></tr>
+          <tr><td><code>game</code></td><td><b>Tracing</b> engine</td><td>see §7</td></tr>
+          <tr><td><code>match</code></td><td><b>Matching</b> engine</td><td>see §7</td></tr>
+          <tr><td><code>quiz</code></td><td><b>Quiz</b> engine</td><td>see §7</td></tr>
+          <tr><td><code>dragdrop</code></td><td><b>Drag &amp; Drop</b> engine</td><td>see §7</td></tr>
+          <tr><td><code>story</code></td><td><b>Story Adventure</b> engine</td><td>see §7</td></tr>
+          <tr><td><code>coloring</code> / <code>createdetail</code></td><td><b>Coloring / Create</b> engine</td><td>see §7</td></tr>
+          <tr><td><code>intro</code></td><td><b>Activity intro</b></td><td>Character "Let's play!" hand-off before a game</td></tr>
+          <tr><td><code>reward</code></td><td><b>Reward</b></td><td>Stars + confetti; varies by score</td></tr>
+          <tr><td><code>surprise</code></td><td><b>Surprise box</b></td><td>Daily reward reveal</td></tr>
+          <tr><td><code>search</code></td><td><b>Search</b></td><td>Live filter + topic chips</td></tr>
+          <tr><td><code>paywall</code></td><td><b>Paywall</b></td><td>Trial, yearly/monthly, feature list</td></tr>
+          <tr><td><code>parent</code></td><td><b>Parent area</b></td><td>Per-child progress, screen-time, subscription</td></tr>
+          <tr><td><code>settings</code></td><td><b>Settings</b></td><td>Language, sound, music, sign out</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 7 ENGINES -->
+    <section id="engines">
+      <h2><span class="hn">7</span> Engines &amp; content JSON schema</h2>
+      <p>The core architecture: <b>each activity is a JSON object; one widget per <code>type</code> renders it.</b> This is what Adey Studio (CMS) produces and the app consumes. Build the 6 engine widgets against these shapes.</p>
+      <h3>Shared envelope (every activity)</h3>
+      <pre><span class="k">{</span>
+  "id": "learn-001",
+  "type": "tracing",            <span class="c">// matching|quiz|tracing|dragdrop|story|coloring</span>
+  "title": "Trace the Fidel",
+  "category": "learn",          <span class="c">// play|learn|watch|create</span>
+  "character": "adey",
+  "age_min": 3, "age_max": 6,
+  "language": "en",             <span class="c">// en|am|both  (am deferred)</span>
+  "is_free": true,
+  "status": "live",             <span class="c">// live|draft|scheduled|archived</span>
+  "media": { "thumbnail": "...", "background": "...", "narration": "..." },
+  "reward_stars": 3,
+  "content": { <span class="c">/* engine-specific, below */</span> }
+<span class="k">}</span></pre>
+      <div class="grid2">
+        <div class="card"><h3 style="margin-top:0">matching</h3><pre style="margin:0">"content": {
+  "grid": "4x3",
+  "pairs": [
+    {"label":"Lion","image":"lion.png",
+     "audio":"lion.mp3"}, ...
+  ]   <span class="c">// 4–16 pairs</span>
+}</pre></div>
+        <div class="card"><h3 style="margin-top:0">quiz</h3><pre style="margin:0">"content": {
+  "questions": [
+    {"prompt":"Which says moo?",
+     "choices":["Cow","Dog","Cat","Lion"],
+     "correct":0,"reaction":"celebrate"}
+  ]   <span class="c">// min 3</span>
+}</pre></div>
+        <div class="card"><h3 style="margin-top:0">tracing</h3><pre style="margin:0">"content": {
+  "glyphs":[
+    {"char":"ሀ","roman":"ha",
+     "stroke_order":"1→2→3",
+     "audio":"ha.mp3"}
+  ]
+}</pre></div>
+        <div class="card"><h3 style="margin-top:0">dragdrop</h3><pre style="margin:0">"content": {
+  "objects":[
+    {"label":"Teff","image":"teff.png",
+     "target":"pot"}
+  ],
+  "zones":["pot"]
+}</pre></div>
+        <div class="card"><h3 style="margin-top:0">story</h3><pre style="margin:0">"content": {
+  "scenes":[
+    {"bg":"savanna.png","text":"...",
+     "narration":"s1.mp3","duration":6,
+     "choices":[{"label":"Mountain",
+       "goto":3}]}
+  ]
+}</pre></div>
+        <div class="card"><h3 style="margin-top:0">coloring</h3><pre style="margin:0">"content": {
+  "svg":"lion-outline.svg",
+  "regions":["mane","face","ear"],
+  "palette":["#E23B3B","#F2A23B",
+    "#FFD23B","#34C06B", ...]
+  <span class="c">// 6–16 colors</span>
+}</pre></div>
+      </div>
+      <div class="callout"><b>Why this matters:</b> new content ships as JSON + assets — no app release. The CMS (Adey Studio) is already designed around exactly these shapes, so the contract is fixed. Lock this schema first; everything else depends on it.</div>
+    </section>
+
+    <!-- 8 ASSETS -->
+    <section id="assets">
+      <h2><span class="hn">8</span> Asset manifest</h2>
+      <p>What exists in the prototype today. Production needs each re-exported at <b>@1× / @2× / @3×</b> (Flutter density buckets) and audio added.</p>
+      <table>
+        <thead><tr><th>Group</th><th>Files</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td><b>Characters</b></td><td><code>char-explorer</code> (Adey), <code>char-chef</code> (Selam), <code>char-musician</code> (Liya), <code>char-inventor</code> (Teddy)</td><td><span class="pill ok">✓ final art</span></td></tr>
+          <tr><td><b>Scenes</b></td><td><code>scene-safari</code>, <code>scene-weave</code>, <code>scene-music</code>, <code>scene-cook</code></td><td><span class="pill part">◐ need 1 per activity</span></td></tr>
+          <tr><td><b>Topic icons</b></td><td>SVG set (animals, letters, counting, music…)</td><td><span class="pill ok">✓ SVG</span></td></tr>
+          <tr><td><b>Brand</b></td><td><code>adeyworld-logo.png</code>, <code>hero-kids.png</code> (splash)</td><td><span class="pill ok">✓</span></td></tr>
+          <tr><td><b>Coloring line-art</b></td><td>SVGs with <b>named regions</b></td><td><span class="pill todo">○ need real line art</span></td></tr>
+          <tr><td><b>App icon / native splash</b></td><td>Store launcher @ all sizes</td><td><span class="pill todo">○ to export</span></td></tr>
+          <tr><td><b>Audio</b></td><td>Narration (per screen/activity), SFX (tap/correct/wrong/celebrate/star), world music</td><td><span class="pill todo">○ none yet</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 9 RULES -->
+    <section id="rules">
+      <h2><span class="hn">9</span> Functional rules</h2>
+      <div class="grid2">
+        <div class="card"><h3 style="margin-top:0">Onboarding &amp; auth</h3>
+          <ul><li>Parent account: email or Google (Supabase Auth)</li><li>Child profile: name, age 2–10, avatar (1 of 4)</li><li>Up to <b>3</b> child profiles; isolated progress</li><li>No child PII beyond name + age</li></ul></div>
+        <div class="card"><h3 style="margin-top:0">Parent gate</h3>
+          <ul><li>Math challenge (a + b) before parent area &amp; any purchase</li><li>Wrong answer → shake, retry; no lockout</li><li>Required by PRD before settings/purchase</li></ul></div>
+        <div class="card"><h3 style="margin-top:0">Paywall &amp; subscription</h3>
+          <ul><li>7-day free trial</li><li>Yearly <b>$39.99</b> / Monthly <b>$4.99</b></li><li>8 free activities; rest premium (lock badge)</li><li>Restore purchases; store product IDs TBD</li><li>Suggested: RevenueCat</li></ul></div>
+        <div class="card"><h3 style="margin-top:0">Progress &amp; rewards</h3>
+          <ul><li>Stars per activity (1–3 by performance)</li><li>Daily streak; daily surprise box</li><li>Completion criteria per engine (e.g. all glyphs traced / all pairs found)</li><li>Track per child; surface in Parent area</li></ul></div>
+        <div class="card"><h3 style="margin-top:0">Screen-time &amp; safety</h3>
+          <ul><li>Daily limit: 20/30/45/60 min or off</li><li>No ads, ever; no external links in kid UI</li><li>COPPA / KidSAFE compliance review required</li></ul></div>
+        <div class="card"><h3 style="margin-top:0">Audio behavior</h3>
+          <ul><li>Narration auto-plays on screen/activity load</li><li>Tap = SFX; correct/wrong/celebrate cues</li><li>Sound &amp; music independently toggleable (Settings)</li><li>Respect device silent / mute</li></ul></div>
+      </div>
+    </section>
+
+    <!-- OWNERSHIP -->
+    <section id="ownership">
+      <h2><span class="hn">↳</span> Ownership &amp; remaining gaps</h2>
+      <p>Clear split of who finishes what. <span class="pill dev">DEV</span> = engineering build · <span class="pill you">CONTENT</span> = your team supplies.</p>
+      <table>
+        <thead><tr><th>Item</th><th>Owner</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Flutter app (all screens/engines/theme)</td><td><span class="pill dev">DEV</span></td><td>Use §2–7 as spec</td></tr>
+          <tr><td>Supabase schema + auth + sync</td><td><span class="pill dev">DEV</span></td><td>users, children, activities, progress, subscriptions</td></tr>
+          <tr><td>Subscription/store integration</td><td><span class="pill dev">DEV</span></td><td>RevenueCat + App Store / Play products</td></tr>
+          <tr><td>Adey Studio CMS (web)</td><td><span class="pill dev">DEV</span></td><td>Next.js + Supabase; design done</td></tr>
+          <tr><td>Native app icon + launch screen</td><td><span class="pill you">CONTENT</span></td><td>Export from brand art</td></tr>
+          <tr><td>Final 28 activities as JSON + assets</td><td><span class="pill you">CONTENT</span></td><td>Schema in §7; 1 scene/coloring-art each</td></tr>
+          <tr><td>Audio: narration + SFX + music</td><td><span class="pill you">CONTENT</span></td><td>Highest-impact remaining content task</td></tr>
+          <tr><td>Coloring line-art SVGs (named regions)</td><td><span class="pill you">CONTENT</span></td><td>Replace demo shapes</td></tr>
+          <tr><td>Educator content review</td><td><span class="pill you">CONTENT</span></td><td>PRD requirement pre-launch</td></tr>
+          <tr><td>Privacy policy + store listings</td><td><span class="pill you">CONTENT</span></td><td>COPPA-compliant</td></tr>
+          <tr><td><b>Amharic translation</b></td><td><span class="pill you">CONTENT</span></td><td><b>Deferred</b> — string keys ready, values later</td></tr>
+        </tbody>
+      </table>
+      <div class="callout"><b>Critical path to a buildable sprint 1:</b> ① Lock the content JSON schema (§7). ② Port tokens → <code>theme.dart</code> (§2–5). ③ Build shared components (§5). ④ Stand up Supabase auth + schema. ⑤ Build engines one-by-one against sample JSON. Audio, final content, and Amharic layer in alongside — none block the architecture.</div>
+    </section>
+  </main>
+</div>
+
+<script>
+const BRAND=[['Brand','#9B1FC9','--brand'],['Brand deep','#6A1191','--brand-deep'],['Brand bright','#B934E6','--brand-bright'],['Ink','#3A1B47','--ink'],['Cream','#FFF6E9','--cream']];
+const CAT=[['Play','#34B764','--play'],['Play dark','#1E8F49','--play-d'],['Learn','#2C8BE0','--learn'],['Learn dark','#1668B8','--learn-d'],['Watch','#FF8A3D','--watch'],['Watch dark','#E06A18','--watch-d'],['Create','#FF5CA8','--create'],['Create dark','#D43483','--create-d']];
+const ACC=[['Sun','#FFC835','--sun'],['Sun dark','#E6A50E','--sun-d'],['Coral','#FF6B5C','--coral']];
+function fill(id,arr){document.getElementById(id).innerHTML=arr.map(([n,hex,tok])=>
+  `<div class="sw"><div class="chip" style="background:${hex}"></div><div class="meta"><b>${n}</b><br><code>${hex}</code> · <code>${tok}</code></div></div>`).join('');}
+fill('sw-brand',BRAND);fill('sw-cat',CAT);fill('sw-acc',ACC);
+</script>
+</body>
+</html>
